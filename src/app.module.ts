@@ -31,13 +31,6 @@ const keyCloakOptionsProvider =  {
       isGlobal: true,
       envFilePath: '.env',
     }),
-    KeycloakConnectModule.register({
-      authServerUrl: 'http://localhost:8080/auth',
-      realm: 'nestjs-demo',
-      clientId: 'nest-app',
-      secret: 'dbf6a724-167c-42a7-a3d0-7761c608a349',
-      // Secret key of the client taken from keycloak server
-    }),
     AuthModule,
   ],
   controllers: [AppController],
