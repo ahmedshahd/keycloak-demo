@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
   KeycloakConnectModule,
   ResourceGuard,
@@ -8,8 +9,28 @@ import {
   AuthGuard,
 } from 'nest-keycloak-connect';
 import { APP_GUARD } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
+
+const keyCloakOptionsProvider =  {
+  provide: 'keyCloakDataProvider',
+  useFactory: (config: ConfigService) => {
+    return {
+      authServerUrl: config.get('KEYCLOAK_AUTH_URI'),
+      realm: config.get('KEYCLOAK_REALM'),
+      clientId: config.get('KEYCLOAK_CLIENT_ID'),
+      secret: config.get('KEYCLOAK_CLIENT_SECRET')
+    }
+  },
+  inject: [ ConfigService],
+};
+
 @Module({
   imports: [
+    KeycloakConnectModule.registerAsync(keyCloakOptionsProvider),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     KeycloakConnectModule.register({
       authServerUrl: 'http://localhost:8080/auth',
       realm: 'nestjs-demo',
@@ -17,6 +38,7 @@ import { APP_GUARD } from '@nestjs/core';
       secret: 'dbf6a724-167c-42a7-a3d0-7761c608a349',
       // Secret key of the client taken from keycloak server
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
